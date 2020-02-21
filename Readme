@@ -1,0 +1,76 @@
+1)
+
+
+docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
+
+
+
+2)
+
+apk add httpie
+
+apt install httpie
+
+
+
+3)
+
+http POST :9000/api/users/admin/init Username="admin" Password="admin"
+
+
+4)
+
+http POST :9000/api/auth Username="admin" Password="admin"
+
+You will get a JWT which has to be stored in a variable (think of a shell script for it)
+
+
+5)
+
+http --form POST :9000/api/endpoints "Authorization: Bearer $token" Name="test123" EndpointType=1
+
+
+
+6)
+
+
+http --form POST :9000/api/endpoints "Authorization: Bearer $token" Name="test123" URL="tcp://10.0.7.10:2375" EndpointType=1
+
+7)
+
+http --form POST :9000/api/endpoints "Authorization: Bearer $token" Name="test-remote" URL="tcp://10.0.7.10:2376" EndpointType=1 TLS="true" TLSCACertFile@/path/to/ca.pem TLSCertFile@/path/to/cert.pem TLSKeyFile@/path/to/key.pem
+
+8)
+
+http GET :9000/api/endpoints/1/docker/containers/json "Authorization: Bearer $token" all==true
+
+
+9)
+
+http POST :9000/api/endpoints/1/docker/containers/create \
+"Authorization: Bearer $token" \
+name=="web01" Image="nginx:latest" \
+ExposedPorts:='{ "80/tcp": {} }' \
+HostConfig:='{ "PortBindings": { "80/tcp": [{ "HostPort": "8080" }] } }'
+
+
+10)
+
+http POST :9000/api/endpoints/1/docker/containers/cont-id/start "Authorization: Bearer $token"
+
+
+11)
+
+
+http GET :9000/api/endpoints/1/docker/swarm "Authorization: Bearer $token"
+
+
+12)
+
+
+http POST ':9000/api/stacks?method=repository&type=1&endpointId=1' \
+"Authorization: Bearer $token" \
+Name="myTestStack" \
+SwarmID="k427pd86wfkgp40ksrmbojrwq" \
+RepositoryURL="https://github.com/portainer/templates" \
+ComposeFilePathInRepository="stacks/cockroachdb/docker-stack.yml"
